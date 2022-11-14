@@ -52,9 +52,9 @@ public class UserServiceImpl implements UserService{
 	
 
 	@Override
-	public void editUser(User user) {
+	public boolean editUser(User user) {
 		
-		userRepository.editUser(user);
+		return userRepository.editUser(user);
 	}
 
 	@Override

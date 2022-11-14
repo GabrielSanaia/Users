@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -28,78 +29,114 @@ public class UserController {
 	UserService userService;
 
 	@PostMapping("/user")
-	public ResponseBody createUser(@RequestBody User user) {
+	public ResponseEntity<ResponseBody> createUser(@RequestBody User user) {
 		userService.createUser(user);
+		HttpStatus status = HttpStatus.CREATED;
 		
-		HttpStatus status = HttpStatus.OK;
-		
-		ResponseBody<User> responseBody = new ResponseBody(status.name(), status.value(),
+		ResponseBody<String> responseBody = new ResponseBody(status.name(), status.value(),
 				 "User added!");
 				
-		ResponseEntity<ResponseBody> responseEntity = new ResponseEntity<ResponseBody>(responseBody, HttpStatus.OK);
-		
-		
-		return responseBody;
+		return new ResponseEntity<ResponseBody>(responseBody, status);
 	}
 	
 	@GetMapping("/user/{ID}")
-	public ResponseEntity<User> getUser(@PathVariable String ID) {
+//	@CrossOrigin("http://localhost:8093/")
+	public ResponseEntity<ResponseBody<User>> getUser(@PathVariable String ID) {
 		User user = userService.getUser(Integer.parseInt(ID));
 		
 		HttpStatus status = HttpStatus.OK;
-		return new ResponseEntity<User>(user,  HttpStatus.ACCEPTED);
+		ResponseBody responseBody = new ResponseBody<User>(status.name(), status.value(), user);
 		
+		System.out.println("Inside API: " + status.name() + " " + status.value() + " " + user);
+		
+		return new ResponseEntity<ResponseBody<User>>(responseBody, status);
 	}
 	
-	
 	@GetMapping("/users")
-	public ResponseEntity<List<User>> getUsers() {
+	public ResponseEntity<ResponseBody<List<User>>> getUsers() {
 		List<User> users = userService.getAllUsers();
 		
-		ResponseEntity<List<User>> responseEntity = new ResponseEntity<List<User>>(users, HttpStatus.OK);
+		HttpStatus status = HttpStatus.OK;
 		
-		return responseEntity;
+		ResponseBody<List<User>> responseBody = new ResponseBody(status.name(), status.value(), users);
+		
+		return new ResponseEntity<ResponseBody<List<User>>>(responseBody, status);
 	}
 	
 	@GetMapping("/userdto/{ID}")
-	public ResponseEntity<UserDTO> getUserDTO(@PathVariable String ID) {
+	public ResponseEntity<ResponseBody<UserDTO>> getUserDTO(@PathVariable String ID) {
 		
 		UserDTO userDTO = userService.getUserDTO(Integer.parseInt(ID));
 		
-		System.out.println(userDTO.getName());
-		System.out.println(userDTO.getSurname());
+		HttpStatus status = HttpStatus.OK;
 		
-		return new ResponseEntity<UserDTO>(userDTO, HttpStatus.OK);
+		ResponseBody responseBody = new ResponseBody(status.name(), status.value(), userDTO);
+		
+		return new ResponseEntity<ResponseBody<UserDTO>>(responseBody, status);
 	}
 	
 	@GetMapping("/user")
-	public ResponseEntity<User> getUser(@RequestParam String name, @RequestParam String surname) {
+	public ResponseEntity<ResponseBody<User>> getUser(@RequestParam String name, @RequestParam String surname) {
 		User user = userService.getUser(name, surname);
 		
-		return new ResponseEntity<User>(user, HttpStatus.OK);
+		HttpStatus status = HttpStatus.OK;
+		
+		ResponseBody responseBody = new ResponseBody(status.name(), status.value(), user);
+		return new ResponseEntity<ResponseBody<User>>(responseBody, status);
 	}
 	
 	@DeleteMapping("/user")
-	public void deleteUser(@RequestBody User user) {
+	public ResponseEntity<ResponseBody<String>> deleteUser(@RequestBody User user) {
 		
 		userService.deleteUser(user.getID());
+		
+		HttpStatus status = HttpStatus.OK;
+		
+		ResponseBody responseBody = new ResponseBody<String>(status.name(), status.value(), "User deleted succesfully!");
+		return new ResponseEntity<ResponseBody<String>>(responseBody, status);
 	}
-	
+
 	@PutMapping("/user")
-	public void editUser(@RequestBody User user) {
-		userService.editUser(user);
+	public ResponseEntity<ResponseBody<String>> editUser(@RequestBody User user) {
+		
+		boolean result = userService.editUser(user);
+		
+		HttpStatus status;
+		ResponseBody responseBody;
+		
+		if(result) {
+			status = HttpStatus.OK;
+			responseBody = new ResponseBody(status.name(), status.value(), "User update Succesfully!");
+		}else {
+			status = HttpStatus.BAD_REQUEST;
+			responseBody = new ResponseBody(status.name(), status.value(), "Illegal ID!");
+		}
+		
+		return new ResponseEntity<ResponseBody<String>>(responseBody, status);
 	}
 	
 	@PatchMapping("/user")
-	public void editUserPartially(@RequestBody User user) {
+	public ResponseEntity<ResponseBody<User>> editUserPartially(@RequestBody User user) {
 		
 		userService.editUserPartilally(user);
+		
+		user = userService.getUser(user.getID());
+		
+		HttpStatus status = HttpStatus.OK;
+		ResponseBody responseBody = new ResponseBody(status.name(), status.value(), user);
+		
+		return new ResponseEntity<ResponseBody<User>>(responseBody, status);
 	}
 	
 	@GetMapping("/userspage")
-	public ResponseEntity<List<User>> getUsersForPage(@RequestParam int usersPerPage, @RequestParam int pageNumber ) {
+	public ResponseEntity<ResponseBody<List<User>>> getUsersForPage(@RequestParam int usersPerPage, @RequestParam int pageNumber) {
+		List<User> users = userService.getUsersForPage(usersPerPage, pageNumber);
 		
-		return new ResponseEntity<List<User>>(userService.getUsersForPage(usersPerPage, pageNumber), HttpStatus.OK);
+		HttpStatus status = HttpStatus.OK;
+		
+		ResponseBody<List<User>> responseBody = new ResponseBody<List<User>>(status.name(), status.value(), users);
+		
+		return new ResponseEntity<ResponseBody<List<User>>>(responseBody, status);
 	}
 	
 }

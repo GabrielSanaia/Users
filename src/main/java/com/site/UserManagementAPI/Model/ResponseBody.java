@@ -1,5 +1,7 @@
 package com.site.UserManagementAPI.Model;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import org.springframework.http.HttpStatus;
@@ -19,7 +21,7 @@ public class ResponseBody<T> {
 		this.status = status;
 		this.statusCode = statusCode;
 		this.data = data;
-		timestamp = new Timestamp(new Date().getTime());
+		timestamp = Timestamp.valueOf(LocalDateTime.now(ZoneId.of("GMT+8")));
 	}
 
 	public String getStatus() {

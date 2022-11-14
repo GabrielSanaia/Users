@@ -17,7 +17,7 @@ public interface UserService {
 	
 	public List<User> getAllUsers();
 	
-	public void editUser(User user);
+	public boolean editUser(User user);
 	
 	public void editUserPartilally(User info);
 	

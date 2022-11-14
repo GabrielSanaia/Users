@@ -16,9 +16,6 @@ public class UserRepository {
 		users.add(user);
 		IDCount++;
 		
-		for(User useri : users)
-			System.out.println(useri.getName() + " " + useri.getID());
-		
 	}
 
 	
@@ -56,9 +53,13 @@ public class UserRepository {
 	
 
 	
-	public void editUser(User user) {
-		users.set(user.getID(), user);
+	public boolean editUser(User user) {
+		if(user.getID() < users.size() && users.get(user.getID()) != null) {
+			users.set(user.getID(), user);
+			return true;
+		}
 		
+			return false;
 	}
 	
 	
